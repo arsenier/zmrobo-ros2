@@ -20,6 +20,8 @@ make zmrobo_run
 make zmrobo_into
 
 cd workspace
+source install/setub.bash
+
 # Драйвер лидара
 make lidar
 
