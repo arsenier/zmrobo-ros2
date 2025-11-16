@@ -20,6 +20,10 @@ make zmrobo_run
 make zmrobo_into
 
 cd workspace
+# Драйвер лидара
 make lidar
+
+# Драйвер тележки
+make zmrobo
 ```
 

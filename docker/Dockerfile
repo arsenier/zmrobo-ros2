@@ -15,9 +15,22 @@ FROM arm64v8/ros:humble
 # RUN echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu $(. /etc/os-release && echo $UBUNTU_CODENAME) main" | sudo tee /etc/apt/sources.list.d/ros2.list > /dev/null
 
 RUN apt-get update
+
+# lidar driver
 RUN apt-get install -y ros-humble-diagnostic-updater
 RUN apt-get install -y libpcap-dev
 RUN apt-get install -y libboost-all-dev
+
+# zmrobo driver
+RUN apt-get install -y ros-humble-ackermann-msgs
+
+RUN . /opt/ros/humble/setup.sh && git clone https://github.com/ZhaoXiangBox/serial.git && \
+    cd serial && \
+    mkdir build && \
+    cd build && \
+    cmake .. && \
+    make && \
+    sudo make install
 
 
 # RUN apt-get update && apt-get install -y ros-humble-pointcloud-to-laserscan ros-humble-slam-toolbox
