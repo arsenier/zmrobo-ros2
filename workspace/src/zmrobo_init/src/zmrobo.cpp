@@ -190,6 +190,16 @@ void turn_on_robot::Publish_Odom()
     odom.twist.twist.linear.y =  Robot_Vel.Y; //Speed in the Y direction //Y方向速度
     odom.twist.twist.angular.z = Robot_Vel.Z; //Angular velocity around the Z axis //绕Z轴角速度 
 
+    geometry_msgs::msg::TransformStamped t;
+
+    t.header.stamp = node->get_clock()->now();
+    t.header.frame_id = "odom";
+    t.child_frame_id = "base_link";
+    t.transform.translation.x = Robot_Pos.X;
+    t.transform.translation.y = Robot_Pos.Y;
+    t.transform.translation.z = Robot_Pos.Z;
+    t.transform.rotation = odom_quat;
+
     //There are two types of this matrix, which are used when the robot is at rest and when it is moving.Extended Kalman Filtering officially provides 2 matrices for the robot_pose_ekf feature pack
     //这个矩阵有两种，分别在机器人静止和运动的时候使用。扩展卡尔曼滤波官方提供的2个矩阵，用于robot_pose_ekf功能包
     if(Robot_Vel.X== 0&&Robot_Vel.Y== 0&&Robot_Vel.Z== 0)
@@ -203,6 +213,7 @@ void turn_on_robot::Publish_Odom()
       memcpy(&odom.pose.covariance, odom_pose_covariance, sizeof(odom_pose_covariance)),
       memcpy(&odom.twist.covariance, odom_twist_covariance, sizeof(odom_twist_covariance));       
     odom_publisher->publish(odom);
+    tf_broadcaster_->sendTransform(t);
 }
 /**************************************
 Date: January 28, 2021
@@ -432,6 +443,7 @@ turn_on_robot::turn_on_robot(const rclcpp::Node::SharedPtr & node_ptr):Sampling_
   voltage_publisher = node->create_publisher<std_msgs::msg::Float32>("PowerVoltage", rclcpp::QoS(10));
   odom_publisher    = node->create_publisher<nav_msgs::msg::Odometry>("odom", rclcpp::QoS(50));
   imu_publisher     = node->create_publisher<sensor_msgs::msg::Imu>("mobile_base/sensors/imu_data", rclcpp::QoS(20));
+  tf_broadcaster_   = std::make_shared<tf2_ros::TransformBroadcaster>(node);
 
   using std::placeholders::_1;
   // Create subscriptions
